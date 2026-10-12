@@ -3,7 +3,7 @@ import { CandidateTable } from "../features/dashboard/CandidateTable";
 import type { RecruitmentContext } from "../types/recruitment";
 
 export function CandidatesPage() {
-  const { positions, search, candidates, dataLoading, dataError } =
+  const { positions, search, clearSearch, candidates, dataLoading, dataError } =
     useOutletContext<RecruitmentContext>();
 
   
@@ -29,6 +29,7 @@ export function CandidatesPage() {
         positions={positions}
         search={search}
         showPositionFilter
+        onClearSearch={clearSearch}
       />}
     </>
   );

@@ -1,6 +1,10 @@
 import type { TechnicalQuestion, TechnicalSessionDetail } from "./recruitment";
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:3000";
+const API_URL = import.meta.env.VITE_API_URL || "https://isealim.on-forge.com";
 const TOKEN_KEY = "ecr-admin-token";
+export const resolveCvUrl = (url: string | null | undefined) => {
+  if (!url) return null;
+  return /^https?:\/\//i.test(url) ? url : `${API_URL}${url.startsWith("/") ? "" : "/"}${url}`;
+};
 export const authToken = () => localStorage.getItem(TOKEN_KEY);
 export const clearAuth = () => { localStorage.removeItem(TOKEN_KEY); window.dispatchEvent(new Event("auth-changed")); };
 export async function loginAdmin(email: string, password: string) {

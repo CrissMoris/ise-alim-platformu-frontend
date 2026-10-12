@@ -35,6 +35,7 @@ export type Position = {
 
 export type RecruitmentContext = {
   search: string;
+  clearSearch: () => void;
   positions: Position[];
   candidates: Candidate[];
   dataLoading: boolean;

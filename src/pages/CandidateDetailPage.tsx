@@ -1,6 +1,6 @@
 import { useParams, useNavigate, useOutletContext } from "react-router";
 import { useEffect, useState, type ReactNode } from "react";
-import { getCandidateById, updateCandidateScore, updateCandidate, appointmentsApi, rejectCandidate, sendEvaluationInvite } from "../lib/api";
+import { getCandidateById, updateCandidateScore, updateCandidate, appointmentsApi, rejectCandidate, sendEvaluationInvite, resolveCvUrl } from "../lib/api";
 import { Pencil, Plus, X } from "lucide-react";
 import type { CandidateDetail } from "../lib/api";
 import type { RecruitmentContext } from "../types/recruitment";
@@ -66,6 +66,66 @@ function structuredValue(value: unknown, depth = 0): ReactNode {
 
 function FormField({ label, value }: { label: string; value: unknown }) {
   return <div className="application-field"><dt>{label}</dt><dd>{structuredValue(value)}</dd></div>;
+}
+
+// Eski platformdaki İş Başvuru Formu tabloları (Eğitim / Diller / Tecrübe / Referanslar) referans alındı.
+const LEVEL_LABELS: Record<string, string> = { orta: "Orta", iyi: "İyi", cokiyi: "Çok İyi" };
+const EGITIM_TUR_LABELS: Record<string, string> = { lise: "Lise", universite: "Üniversite" };
+const EGITIM_COLUMNS = [
+  { key: "tur", label: "Tür" },
+  { key: "okulAdi", label: "Okul Adı" },
+  { key: "bolum", label: "Bölüm" },
+  { key: "baslangicTarihi", label: "Başlangıç" },
+  { key: "bitisTarihi", label: "Bitiş" },
+  { key: "mezuniyetDurumu", label: "Mezuniyet" },
+];
+const DIL_COLUMNS = [
+  { key: "dil", label: "Dil" },
+  { key: "okuma", label: "Okuma" },
+  { key: "yazma", label: "Yazma" },
+  { key: "konusma", label: "Konuşma" },
+];
+const TECRUBE_COLUMNS = [
+  { key: "firmaAdi", label: "Firma / Kurum" },
+  { key: "gorev", label: "Görev" },
+  { key: "girisTarihi", label: "Giriş" },
+  { key: "cikisTarihi", label: "Çıkış" },
+  { key: "ayrilmaSebebi", label: "Ayrılma Sebebi" },
+];
+const REFERANS_COLUMNS = [
+  { key: "adSoyad", label: "Ad Soyad" },
+  { key: "calistigiKurum", label: "Çalıştığı Kurum" },
+  { key: "gorevi", label: "Görevi" },
+  { key: "telefon", label: "Telefon" },
+];
+
+function formCellValue(key: string, value: unknown): ReactNode {
+  if (typeof value === "string") {
+    if (key === "tur" && EGITIM_TUR_LABELS[value]) return EGITIM_TUR_LABELS[value];
+    if (["okuma", "yazma", "konusma"].includes(key) && LEVEL_LABELS[value]) return LEVEL_LABELS[value];
+  }
+  return structuredValue(value);
+}
+
+function asFormRows(value: unknown): Record<string, unknown>[] | null {
+  let parsed: unknown = value;
+  if (typeof parsed === "string") {
+    try { parsed = JSON.parse(parsed); } catch { return null; }
+  }
+  if (!Array.isArray(parsed) || !parsed.length) return null;
+  const rows = parsed.filter((item): item is Record<string, unknown> => Boolean(item) && typeof item === "object" && !Array.isArray(item));
+  return rows.length === parsed.length ? rows : null;
+}
+
+function FormTable({ value, columns }: { value: unknown; columns: { key: string; label: string }[] }) {
+  const rows = asFormRows(value);
+  if (!rows) return <div className="job-application-structured">{structuredValue(value)}</div>;
+  const extraKeys = [...new Set(rows.flatMap((row) => Object.keys(row)))].filter((key) => !columns.some((column) => column.key === key));
+  const allColumns = [...columns, ...extraKeys.map((key) => ({ key, label: readableKey(key) }))];
+  return <div className="form-table-wrap"><table className="form-table">
+    <thead><tr>{allColumns.map((column) => <th key={column.key}>{column.label}</th>)}</tr></thead>
+    <tbody>{rows.map((row, index) => <tr key={index}>{allColumns.map((column) => <td key={column.key}>{formCellValue(column.key, row[column.key])}</td>)}</tr>)}</tbody>
+  </table></div>;
 }
 
 export function CandidateDetailPage() {
@@ -852,14 +912,19 @@ const evaluatedTechnicalSession = candidate.technicalSessions?.find(
     </div>
 
     {candidate.cvUrl ? (
-      <a
-        className="candidate-secondary-button"
-        href={candidate.cvUrl}
-        target="_blank"
-        rel="noopener noreferrer"
-      >
-        CV'yi Yeni Sekmede Aç
-      </a>
+      <>
+        <div className="candidate-cv-preview">
+          <iframe src={resolveCvUrl(candidate.cvUrl)!} title="CV önizleme" />
+        </div>
+        <a
+          className="candidate-secondary-button"
+          href={resolveCvUrl(candidate.cvUrl)!}
+          target="_blank"
+          rel="noopener noreferrer"
+        >
+          CV'yi Yeni Sekmede Aç
+        </a>
+      </>
     ) : (
       <p className="muted">CV eklenmemiş.</p>
     )}
@@ -1075,10 +1140,10 @@ const evaluatedTechnicalSession = candidate.technicalSessions?.find(
               <FormField label="Sürücü Belgesi" value={form.suruculBelgesi} />
               <FormField label="Diğer Açıklama" value={form.suruculBelgesiDiger} />
             </dl></section>
-            <section className="job-application-section"><h3>Eğitim</h3><div className="job-application-structured">{structuredValue(form.egitim)}</div></section>
-            <section className="job-application-section"><h3>Yabancı Diller</h3><div className="job-application-structured">{structuredValue(form.yabanciDiller)}</div></section>
-            <section className="job-application-section"><h3>İş Tecrübesi</h3><div className="job-application-structured">{structuredValue(form.isTecrubesi)}</div></section>
-            <section className="job-application-section"><h3>Referanslar</h3><div className="job-application-structured">{structuredValue(form.referanslar)}</div></section>
+            <section className="job-application-section job-application-table-section"><h3>Eğitim</h3><FormTable value={form.egitim} columns={EGITIM_COLUMNS} /></section>
+            <section className="job-application-section job-application-table-section"><h3>Yabancı Diller</h3><FormTable value={form.yabanciDiller} columns={DIL_COLUMNS} /></section>
+            <section className="job-application-section job-application-table-section"><h3>İş Tecrübesi</h3><FormTable value={form.isTecrubesi} columns={TECRUBE_COLUMNS} /></section>
+            <section className="job-application-section job-application-table-section"><h3>Referanslar</h3><FormTable value={form.referanslar} columns={REFERANS_COLUMNS} /></section>
             <section className="job-application-section"><h3>Sağlık / Adli Durum</h3><dl className="job-application-grid">
               <FormField label="Sağlık Problemi" value={form.saglikProblem} />
               <FormField label="Sağlık Açıklaması" value={form.saglikProblemAciklama} />

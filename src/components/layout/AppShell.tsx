@@ -23,6 +23,12 @@ export function AppShell() {
     else dialog.current?.close();
   }, [mobile]);
 
+  const [prevPath, setPrevPath] = useState(location.pathname);
+  if (prevPath !== location.pathname) {
+    setPrevPath(location.pathname);
+    if (mobile) setMobile(false);
+  }
+
   useEffect(() => {
     Promise.all([getPositions(), getCandidates()])
       .then(([nextPositions, nextCandidates]) => {
@@ -41,6 +47,7 @@ export function AppShell() {
 
   const context: RecruitmentContext = {
     search,
+    clearSearch: () => setSearch(""),
     candidates,
     positions,
     dataLoading,

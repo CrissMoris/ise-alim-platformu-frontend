@@ -99,7 +99,7 @@ export function CandidateTable({
     const left = sortValue(a, sortKey);
     const right = sortValue(b, sortKey);
     if (left === null && right === null) return 0;
-    if (left === null) return 1; 
+    if (left === null) return 1;
     if (right === null) return -1;
     const diff = typeof left === "string" && typeof right === "string" ? left.localeCompare(right, "tr") : Number(left) - Number(right);
     return sortDir === "asc" ? diff : -diff;
@@ -108,7 +108,7 @@ export function CandidateTable({
     if (sortKey !== key) {
       setSortKey(key);
       setSortDir("asc");
-      } else if (sortDir === "asc") {
+    } else if (sortDir === "asc") {
       setSortDir("desc");
     } else {
       setSortKey(null);
@@ -140,7 +140,7 @@ export function CandidateTable({
       <label className="filter-select"><select aria-label="Ehliyet durumuna göre filtrele" value={licenseFilter} onChange={(event) => setLicenseFilter(event.target.value)}><option value="Tümü">Ehliyet durumu</option><option value="Var">Ehliyeti var</option><option value="Yok">Ehliyeti yok</option></select></label>
       <label className="filter-select"><select aria-label="İlçeye göre filtrele" value={districtFilter} onChange={(event) => setDistrictFilter(event.target.value)}><option value="Tümü">Tüm ilçeler</option>{districts.map((district) => <option key={district} value={district}>{district}</option>)}</select></label>
       <div className="age-filter"><input type="number" min="18" placeholder="Min yaş" aria-label="Minimum yaş" value={minAge} onChange={(event) => setMinAge(event.target.value)} /><span>–</span><input type="number" min="18" placeholder="Maks yaş" aria-label="Maksimum yaş" value={maxAge} onChange={(event) => setMaxAge(event.target.value)} /></div>
-      {hasActiveFilters && <button type="button" className="filters-clear" onClick={clearFilters}><X size={14} /> Filtreleri Temizle</button>}
+      {hasActiveFilters && <button type="button" className="filters-clear" aria-label="Filtreleri temizle" onClick={clearFilters}><X size={14} /></button>}
     </div>}
     {filtered.length ? <div className="table-scroll" tabIndex={0} role="region" aria-label={`${title} tablosu`}>
       <table className="application-table modern-table">
@@ -196,7 +196,7 @@ export function CandidateTable({
       ? new Date(candidate.createdAt).toLocaleDateString("tr-TR")
       : "—"}
   </td>
-         <td><span className="source-badge">{applicationSource(candidate.tags)}</span></td>
+          <td><span className="source-badge">{applicationSource(candidate.tags)}</span></td>
 {!compact && (
   <>
     <td>{candidate.district || "—"}</td>

@@ -2673,7 +2673,7 @@ body.print-preparing .form-table td { padding: .8mm 1.5mm; font-size: 7.5pt; lin
   display: inline-flex;
   align-items: center;
   gap: 5px;
-  margin: -4px -8px;
+  margin: -4px -8px; 
   padding: 4px 8px;
   border: 0;
   border-radius: 6px;
@@ -2710,6 +2710,14 @@ th[aria-sort] .sort-header:hover { background: #e3ecff; }
 }
 .filters-clear:hover { border-color: #e3aab2; background: #fff0f2; color: #962f3d; }
 .filters-clear:focus-visible { outline: none; border-color: #e3aab2; box-shadow: 0 0 0 3px #bb3f4a14; }
+@media (max-width: 1150px) {
+  .candidate-filters { gap: 6px; padding: 14px 16px; }
+  .candidate-filters .filter-select { min-height: 34px; padding: 0 8px; }
+  .candidate-filters .filter-select select { max-width: 120px; font-size: 11px; }
+  .candidate-filters .age-filter input { width: 62px; height: 34px; font-size: 11px; }
+  .candidate-filters .filters-label { font-size: 11px; }
+  .filters-clear { min-height: 34px; padding: 0 10px; font-size: 11px; }
+}
 .table-pagination {
   display: inline-flex;
   align-items: center;

@@ -363,6 +363,17 @@ export async function createCandidate(
 
   return response.json();
 }
+
+export async function uploadCandidateCv(id: string, file: File) {
+  const formData = new FormData();
+  formData.append("cv", file);
+  const response = await apiFetch(`${API_URL}/candidates/${id}/cv`, { method: "POST", body: formData });
+  if (!response.ok) {
+    const body = await response.json().catch(() => null) as { message?: string } | null;
+    throw new Error(body?.message || "CV yüklenemedi.");
+  }
+  return response.json() as Promise<{ id: string; cvUrl: string | null }>;
+}
 //UPDATE
 
 export async function updateCandidateScore(

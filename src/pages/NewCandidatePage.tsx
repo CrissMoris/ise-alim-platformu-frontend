@@ -2,7 +2,7 @@ import { useState } from "react";
 import type { ChangeEvent, FormEvent } from "react";
 import { useNavigate, useOutletContext } from "react-router";
 import type { RecruitmentContext } from "../types/recruitment";
-import { createCandidate } from "../lib/api";
+import { createCandidate, uploadCandidateCv } from "../lib/api";
 import { ArrowLeft, ClipboardList, UserPlus } from "lucide-react";
 
 const districts = [
@@ -112,6 +112,20 @@ export function NewCandidatePage() {
         totalWorkExperience: form.totalWorkExperience || null,
         field: form.field || null,
       });
+
+      // Seçilen CV, aday oluşturulduktan sonra ayrı istekle yüklenir
+      // CV hatası aday kaydını geri almaz; tekrar kaydet duplicate yaratacağından yine detaya gidilir.
+      if (cvFile) {
+        try {
+          await uploadCandidateCv(createdCandidate.id, cvFile);
+        } catch (cvError) {
+          window.alert(
+            cvError instanceof Error
+              ? `Aday oluşturuldu ancak CV yüklenemedi: ${cvError.message}`
+              : "Aday oluşturuldu ancak CV yüklenemedi.",
+          );
+        }
+      }
 
       navigate(`/adaylar/${createdCandidate.id}`);
     } catch (err) {

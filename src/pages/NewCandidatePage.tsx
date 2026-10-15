@@ -127,6 +127,7 @@ export function NewCandidatePage() {
         }
       }
 
+      window.dispatchEvent(new Event("candidates-updated"));
       navigate(`/adaylar/${createdCandidate.id}`);
     } catch (err) {
       setError(
@@ -329,14 +330,9 @@ export function NewCandidatePage() {
                   >
                     <option value="">Seçiniz</option>
                     <option value="A">A</option>
-                    <option value="A1">A1</option>
-                    <option value="A2">A2</option>
                     <option value="B">B</option>
-                    <option value="BE">BE</option>
                     <option value="C">C</option>
-                    <option value="CE">CE</option>
                     <option value="D">D</option>
-                    <option value="DE">DE</option>
                     <option value="F">F</option>
                     <option value="G">G</option>
                   </select>

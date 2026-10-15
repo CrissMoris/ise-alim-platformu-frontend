@@ -248,6 +248,7 @@ const isRejected = candidate?.tags?.includes("Reddedildi");
         : current,
     );
 
+    window.dispatchEvent(new Event("candidates-updated"));
     setScoreMessage("Skor kaydedildi.");
   } catch (err) {
     console.error(err);
@@ -300,11 +301,12 @@ const handlePersonalInfoSave = async () => {
         : current,
     );
 
+    window.dispatchEvent(new Event("candidates-updated"));
     setEditingPersonalInfo(false);
     setPersonalMessage("Bilgiler kaydedildi.");
   } catch (err) {
     console.error(err);
-    setPersonalMessage("Bilgiler kaydedilemedi.");
+    setPersonalMessage(err instanceof Error ? err.message : "Bilgiler kaydedilemedi.");
   } finally {
     setPersonalSaving(false);
   }
@@ -676,12 +678,13 @@ const evaluatedTechnicalSession = candidate.technicalSessions?.find(
           }
         >
           <option value="">Yok</option>
-          <option value="B">B</option>
           <option value="A">A</option>
-          <option value="A2">A2</option>
+          <option value="B">B</option>
           <option value="C">C</option>
           <option value="D">D</option>
           <option value="E">E</option>
+          <option value="F">F</option>
+          <option value="G">G</option>
         </select>
       </label>
 

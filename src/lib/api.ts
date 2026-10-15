@@ -408,7 +408,9 @@ export async function updateCandidate(
   });
 
   if (!response.ok) {
-    throw new Error("Aday bilgileri güncellenemedi");
+    const body = await response.json().catch(() => null) as { message?: string | string[] } | null;
+    const message = Array.isArray(body?.message) ? body.message.join(", ") : body?.message;
+    throw new Error(message || "Aday bilgileri güncellenemedi");
   }
 
   return response.json();
